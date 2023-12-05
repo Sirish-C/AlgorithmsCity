@@ -18,11 +18,14 @@ public class Main {
     	String formattedDateTime;
         formattedDateTime = null;
         String datasetPath = "./Datasets/";
+        String resultsPath = "./Results/";
         String weatherCsvFilePath = datasetPath+"weather.csv";
         String distanceCsvFilePath = datasetPath+"distance1.csv";
         String seaLevelCsvFilePath = datasetPath+"seaLevel.csv";
         String distanceWithoutHeaders = datasetPath+"distance_matrix_without_citynames.csv";
         String possiblePathCode = datasetPath+ "new_distance_matrics.csv";
+
+        String outputGraphical = resultsPath+"output_graphical.txt";
         
         System.out.print("Please provide the name of your starting city and state in the specified format: Ex: (MillCity-NV) ");
         Scanner sc = new Scanner(System.in);
@@ -182,10 +185,9 @@ public class Main {
 //	            // Prompt user for input and perform visualization
 //	            promptAndVisualize(dataReader, graphVisualizer);
 //	        });
+
 			
-			
-			
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\output_graphical.txt"))) {
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputGraphical))) {
 			    writer.write(shortest_path);
 			} catch (IOException e) {
 			    e.printStackTrace();
