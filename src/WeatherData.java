@@ -1,4 +1,3 @@
-package edu.pnw;
 public class WeatherData {
         public final String weather;
         public final int temperature;

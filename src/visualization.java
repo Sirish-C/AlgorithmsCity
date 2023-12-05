@@ -1,5 +1,3 @@
-package edu.pnw;
-
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,10 +7,11 @@ import java.util.Scanner;
 public class visualization {
 
     // Constants for file paths
-    private static final String WEATHER_CSV_FILE = "C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\weather.csv";
-    private static final String SEA_LEVEL_CSV_FILE = "C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\sealevelforallcities.csv";
-    private static final String DISTANCE_CSV_FILE = "C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\distance_matrics.csv";
-    private static final String OUTPUT_PATH = "C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\output_graphical.txt";
+    private static final String DATASET_PATH = "./Datasets/";
+    private static final String WEATHER_CSV_FILE = DATASET_PATH +  "weather.csv";
+    private static final String SEA_LEVEL_CSV_FILE = DATASET_PATH + "sealevelforallcities.csv";
+    private static final String DISTANCE_CSV_FILE = DATASET_PATH + "distance_matrics.csv";
+    private static final String OUTPUT_PATH = DATASET_PATH +  "output_graphical.txt";
 
     // Enum for visualization options
     private enum VisualizationOption {

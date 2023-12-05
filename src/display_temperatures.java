@@ -1,5 +1,3 @@
-package edu.pnw;
-
 import java.util.*;
 
 public class display_temperatures {
