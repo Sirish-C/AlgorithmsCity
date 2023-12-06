@@ -23,6 +23,30 @@ Provide the inputs based on your choice as shown in the below figure:
 
 ## Sample Outputs: 
 
+1. Visualization for all Cities:
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/aa722015-ead5-4d23-acf7-bf0581ba623b">
+
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/ecd414e3-8fb2-460e-9aba-d36814482ea5">
+
+2. Visualization of Path Trajactory - Shortest Path
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/24aadb6e-7942-44b2-af70-90a58fb71591">
+
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/3032329a-a65a-4e71-98c3-64f1f4bc6822">
+
+3. Visualization of Path Trajactory - Lowest Gas Consumption Path
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/0344c419-1ed3-4097-9322-7bb42b2526ff">
+
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/76ea0047-4903-4880-833e-cbc72bdbde72">
+
+4. Visualization of Path Trajactory - Safest Path (Considering Weather Situations)
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/52c5fc62-4867-4f69-a55c-dcf596608db6">
+
+<img width="1280" alt="image" src="https://github.com/Sirish-C/AlgorithmsCity/assets/151399844/1ac0e15e-b3d8-405d-9b0b-625d8a1a76eb">
+
+
+
+
+
 
 
 
