@@ -16,7 +16,7 @@ Step 5: Run Milestone 4:
 With main.java open, run the Milestone 4 code using IntelliJ IDEA's built-in execution capabilities.
 
 ## Inputs :
-Please provide the inputs as shown in the below figure according to your choice.
+Provide the inputs based on your choice as shown in the below figure:
 ![MILESTONE4](https://github.com/Sirish-C/AlgorithmsCity/assets/151399787/37d42ece-8367-4986-9fdc-9f52df4d44af)
 
 ## Sample Outputs: 
