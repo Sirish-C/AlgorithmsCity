@@ -11,10 +11,34 @@ public class Dijkstras {
 	private float[][] adj_matrix = null;
 	public static float mileage;
 	static StringBuilder shortest_path = new StringBuilder();
+    static StringBuilder path = new StringBuilder();
 	public static int i;
 	public static String endcity;
+
+    public static float[] getDistances(String city1,String city2, float[][] adjMat){
+        float[] data = new float[2];
+        int i1 = findIndex(city1.split("-")[0]);
+        int i2 = findIndex(city2.split("-")[0]);
+        data[0] = adjMat[i1][i2];
+        data[1] = (adjMat[i1][i2]/55);
+        return data;
+
+    }
+
+    public static void display(String data, float[][] adjMat){
+        String[] cities = data.split(",");
+
+        for(int i=0;i<cities.length-1;i++){
+            float[] distance = getDistances(cities[i],cities[i+1],adjMat);
+            System.out.print(cities[i]);
+            if(i!=cities.length-1){
+                System.out.print("-----["+distance[0]+" Miles, Time = "+distance[1]+ " hrs]----->");
+            }
+        }
+        System.out.println(cities[cities.length-1]);
+    }
 	
-	public Dijkstras(String startcity, String endcity, display_temperatures temperature, float[][] adjacencymatrix, float mileage) {
+	public Dijkstras(String startcity, String endcity, display_temperatures temperature, float[][] adjacencymatrix, float mileage, boolean display) {
 		int startVertex = 0; 
 		int endVertex = 0; 
 		this.temperature = temperature;
@@ -27,8 +51,7 @@ public class Dijkstras {
         	cityList[i] = cityList[i].toLowerCase().replace (" ","");
 //        	System.out.println(cityList[i]);
         }
-		
-        System.out.println(startcity);
+
 		for (int i = 0; i < cityList.length; i++) {
 			
             if (cityList[i].equals(startcity)) {
@@ -44,7 +67,7 @@ public class Dijkstras {
         }
 		
 		//System.out.println("startcity: " + startcity + " startVertex : " + startVertex + " endcity: " + endcity + " endVertex : " + endVertex);
-		dijkstra(adj_matrix, startVertex, endVertex);
+		dijkstra(adj_matrix, startVertex, endVertex,display);
 	}
 
     public static float getDistance(float[][] distanceData,String path){
@@ -65,7 +88,7 @@ public class Dijkstras {
     }
 	
 	
-	private static void dijkstra(float[][] adjacencyMatrix, int startVertex, int destinationVertex) {
+	private static void dijkstra(float[][] adjacencyMatrix, int startVertex, int destinationVertex,boolean display) {
         int nVertices = adjacencyMatrix[0].length;
         float[] shortestDistances = new float[nVertices];
         boolean[] added = new boolean[nVertices];
@@ -109,18 +132,19 @@ public class Dijkstras {
             }
         }
 
-        printSolution(startVertex, destinationVertex, shortestDistances, parents, stringList);
+        printSolution(startVertex, destinationVertex, shortestDistances, parents, stringList, display);
     }
 
-    private static void printSolution(int startVertex, int destinationVertex, float[] distances, int[] parents, List<String> stringList) {
+    private static void printSolution(int startVertex, int destinationVertex, float[] distances, int[] parents, List<String> stringList, boolean display) {
         int nVertices = distances.length;
-        //System.out.print("\nDistance from " + stringList.get(startVertex) + " to " + stringList.get(destinationVertex) + " : ");
+
 
         if (distances[destinationVertex] == Integer.MAX_VALUE) {
             System.out.println("No path found from " + startVertex + " to " + destinationVertex);
         } else {
-            System.out.print("The Path is as follows: \n");
-            
+            if(display){
+                System.out.println("\nDistance from " + stringList.get(startVertex) + " to " + stringList.get(destinationVertex) + " : "+ distances[destinationVertex] + " miles");
+            }
             printPath(destinationVertex, parents, stringList);
             
             System.out.print("On an average speed of 55 mph, it takes at least " + ((float) distances[destinationVertex] / 55) + " hours to reach the destination ");
@@ -136,19 +160,24 @@ public class Dijkstras {
 
         String currentCity = stringList.get(currentVertex);
         currentCity = currentCity.toLowerCase().replace (" ","");
-        System.out.print(currentCity + " -> ");
+        //System.out.print(currentCity + " -> ");
         shortest_path.append(currentCity);
-
+        path.append(currentCity);
+        shortest_path.append(temperature.fetch_display(" ", currentCity, 1));
         if (!currentCity.equals(endcity)) {
             shortest_path.append(",");
+            path.append(",");
         }
 //        System.out.println("In Dijk: " + currentCity);
-        //temperature.fetch_display(" ", currentCity, 1);
+
     }
     
     
     public static String return_shortest_path() {
     	return shortest_path.toString();
+    }
+    public static String return_path() {
+        return path.toString();
     }
 }
 

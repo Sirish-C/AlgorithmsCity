@@ -11,7 +11,7 @@ public class display_temperatures {
 		this.formattedDateTime = formattedDateTime;
 	}
 	
-	public void fetch_display(String fromCity, String toCity, int distance){
+	public String fetch_display(String fromCity, String toCity, int distance){
 		
 		CityData fromdata = cityWeatherMap.get(fromCity);
 		CityData todata = cityWeatherMap.get(toCity);
@@ -37,8 +37,10 @@ public class display_temperatures {
 
         if (toCity != null) {        	
         	// Create a list to store filtered weather entries
-
+			int i =0;
+			//System.out.println(i);
         	for (Map.Entry<String, WeatherData> weatherEntry : todata.getWeatherData().entrySet()) {
+
         	    String timestamp = weatherEntry.getKey();
         	    String[] dateTimeSplit = timestamp.split("T");
         	    String date = dateTimeSplit[0];
@@ -61,17 +63,19 @@ public class display_temperatures {
         	    if (formattedDate.equals(date)) {
         	        // Check if the entry time is after formattedTime and before 23:00:00
         	        if (time.compareTo(formattedTime) >= 0 && time.compareTo("24:00:00") < 0) {
-        	            System.out.println("Timestamp: " + timestamp +
-        	                    ", Weather: " + weatherData.getWeather() +
-        	                    ", Temperature: " + weatherData.getTemperature() + " F");
+						i=i+1;
+						if(i==1)
+						{
+							return (" [ Weather: " + weatherData.getWeather() +
+									"; Sea Level: " + todata.getseaLeveldata() + " ft ]");
+						}
+
         	        }
         	    }
         	}
-        	
-        // Fetch and print sea level data
-            System.out.println("Sea Level: " + todata.getseaLeveldata() + " ft");
         } else {
             System.out.println("Data not available for city: " + toCity);
         }
+		return "";
 	}
 }

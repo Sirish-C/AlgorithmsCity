@@ -16,6 +16,8 @@ public class Main {
         return Integer.parseInt(test.get(1));
     }
 
+
+
     public static float[][] updateAdjacencyMatrix(float[][] mat){
         float[][] adjMAat = mat;
         try{
@@ -169,37 +171,20 @@ public class Main {
         float[][] adjacencymatrix = distanceDataManager.readCSV(distanceWithoutHeaders);
         
 		if(user_selection == 1) {
-//			int iCity = distanceDataManager.getIndex(startcity);
-//			int jCity = distanceDataManager.getIndex(endcity);
-//
-//        	System.out.println("Distance between " + startcity + " and " + endcity + " is " + adjacencymatrix[iCity][jCity]);
-//        	System.out.print("Please specify how many miles additionally you would like to travel : " );
-////            int range = sc.nextInt();
-////            sc.nextLine();
-//            int range = 10;
-//            System.out.print("Displaying all available paths in the within  " + ( adjacencymatrix[iCity][jCity] + range ) + " mi");
-//
-//
-//            paths = new possible_paths_1(startcity, endcity, range, cityWeatherMap, temperature, mileage, possiblePathCode);
-//            List<List<String>> allpaths = paths.findAllPaths();
-            Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage);
+            Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage, true);
             shortest_path = Dijkstra.return_shortest_path();
-            System.out.println("Total Distance = "+ Dijkstra.getDistance(adjacencymatrix,shortest_path));
-            //System.out.println("Dijkstra Shortest Path: " + shortest_path);
+            System.out.println("Dijkstra Shortest Path: ");
+            Dijkstra.display(shortest_path,adjacencymatrix);
+            shortest_path = Dijkstra.return_path();
             
         }else if(user_selection == 2) {
-        	
-//        	System.out.println(startcity);
-//
-//        	Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage);
-//        	shortest_path = Dijkstra.return_shortest_path();
-//        	System.out.println("Dijkstra Shortest Path: " + shortest_path);
-
             float[][] updatedAdjacencyMatrix = updateAdjacencyMatrix(adjacencymatrix);
-            Dijkstras Dijkstra1 = new Dijkstras(startcity, endcity, temperature, updatedAdjacencyMatrix, mileage);
+            Dijkstras Dijkstra1 = new Dijkstras(startcity, endcity, temperature, updatedAdjacencyMatrix, mileage,false);
             shortest_path = Dijkstra1.return_shortest_path();
-            System.out.println("Dijkstra Shortest Path: " + shortest_path);
-            System.out.println("Total Distance = "+ Dijkstra1.getDistance(adjacencymatrix,shortest_path));
+            System.out.println("Path with less gasoline consumption : ");
+            Dijkstra1.display(shortest_path,updatedAdjacencyMatrix);
+            shortest_path = Dijkstra1.return_path();
+            //System.out.println("Total Distance = "+ Dijkstra1.getDistance(adjacencymatrix,shortest_path));
 
         	
         	
@@ -209,13 +194,13 @@ public class Main {
         }
 		
 		if(shortest_path != null) {
-			
-			
+
+
 //			SwingUtilities.invokeLater(() -> {
 //	            double gasMileage = 0;
 //	            DataReader dataReader = new DataReader("C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\distance_matrics.csv");
 //	            GraphVisualizer graphVisualizer = new GraphVisualizer(dataReader);
-//	
+//
 //	            // Prompt user for input and perform visualization
 //	            promptAndVisualize(dataReader, graphVisualizer);
 //	        });
