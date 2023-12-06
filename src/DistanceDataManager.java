@@ -49,8 +49,8 @@ public class DistanceDataManager {
 		 return -1; 
 	 }
 	 
-	 public int[][] readCSV(String filePath) {
-        int[][] adjacencyMatrix = null;
+	 public float[][] readCSV(String filePath) {
+        float[][] adjacencyMatrix = null;
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             int size = 0;
@@ -60,7 +60,7 @@ public class DistanceDataManager {
             }
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
 
-            adjacencyMatrix = new int[size][size];
+            adjacencyMatrix = new float[size][size];
 
             int i = 0;
             while ((line = reader.readLine()) != null) {

@@ -1,1 +1,1 @@
-millcity-nv,wells-nv,westvalleycity-ut,provo-ut,grandjunction-co,aspen-co
+millcity-nv,wells-nv,westvalleycity-ut,provo-ut,grandjunction-co,aspen-comillcity-nv,westwendover-nv,orem-ut,provo-ut,grandjunction-co,aspen-co

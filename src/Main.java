@@ -11,6 +11,36 @@ import java.time.format.DateTimeFormatter;
 public class Main {
 	public static String shortest_path = null;
 
+    public static int getSeaLevel(List<List<String>> seaLevelData, int index){
+        List<String> test = seaLevelData.get((index));
+        return Integer.parseInt(test.get(1));
+    }
+
+    public static float[][] updateAdjacencyMatrix(float[][] mat){
+        float[][] adjMAat = mat;
+        try{
+            String seaLevelCsvFilePath = "./Datasets/seaLevel.csv";
+            DistanceDataManager distanceDataManager = new DistanceDataManager();
+            SeaLevel seaLevel = new SeaLevel();
+            List<List<String>> seaLeveldata = seaLevel.loadSeaLevel(seaLevelCsvFilePath);
+            for(int i =0 ;i<adjMAat.length;i++){
+                for(int j =0;j<adjMAat[i].length ;j++){
+                    int s1 = getSeaLevel(seaLeveldata,i);
+                    int s2 = getSeaLevel(seaLeveldata,j);
+                    int diff = s1-s2;
+                    if(diff <-100){
+                        adjMAat[i][j] = (float) (adjMAat[i][j]*0.95);
+                    }
+                    if(diff>100){
+                        adjMAat[i][j] = (float) (adjMAat[i][j]*1.05);
+                    }
+                }
+            }}
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return adjMAat;
+    }
     public static void main(String[] args) {
     	
     	String formattedDateTime;
@@ -65,8 +95,7 @@ public class Main {
         
         
         System.out.print("Please enter the average mileage of your vehicle: (in mpg)");
-        float mileage = sc.nextFloat();
-        System.out.println();
+        float mileage = 30;
         
         
         //Declaration of Objects outside the try-catch block, ensuring its access across the function.
@@ -124,49 +153,56 @@ public class Main {
             e.printStackTrace();
         }
 
-       
+
+//        System.out.println("Please choose any one of the following: ");
+//        System.out.println("1. Display all possible paths from " + startcity + " to " + endcity);
+//        System.out.println("2. Run Dijkstra's Algorithm ");
+//        System.out.println("3. Run Bellman-Ford Algorithm");
         System.out.println("Please choose any one of the following: ");
-        System.out.println("1. Display all possible paths from " + startcity + " to " + endcity);
-        System.out.println("2. Run Dijkstra's Algorithm ");
-        System.out.println("3. Run Bellman-Ford Algorithm");
+        System.out.println("1. Shortest Path from " + startcity + " to " + endcity);
+        System.out.println("2. Lowest gas consumption path from " + startcity + " to " + endcity);
+        System.out.println("3. Safest Travel path from"+ startcity + " to " + endcity);
         
         int user_selection = sc.nextInt();
         
         
-        int[][] adjacencymatrix = distanceDataManager.readCSV(distanceWithoutHeaders);
+        float[][] adjacencymatrix = distanceDataManager.readCSV(distanceWithoutHeaders);
         
 		if(user_selection == 1) {
-			int iCity = distanceDataManager.getIndex(startcity);
-			int jCity = distanceDataManager.getIndex(endcity);
-			
-        	System.out.println("Distance between " + startcity + " and " + endcity + " is " + adjacencymatrix[iCity][jCity]);
-        	System.out.print("Please specify how many miles additionally you would like to travel : " );
-            int range = sc.nextInt();
-            sc.nextLine();
-            System.out.println();
-            System.out.print("Displaying all available paths in the within  " + ( adjacencymatrix[iCity][jCity] + range ) + " mi");
-            
-           
-            paths = new possible_paths_1(startcity, endcity, range, cityWeatherMap, temperature, mileage, possiblePathCode);
-            List<List<String>> allpaths = paths.findAllPaths();
+//			int iCity = distanceDataManager.getIndex(startcity);
+//			int jCity = distanceDataManager.getIndex(endcity);
+//
+//        	System.out.println("Distance between " + startcity + " and " + endcity + " is " + adjacencymatrix[iCity][jCity]);
+//        	System.out.print("Please specify how many miles additionally you would like to travel : " );
+////            int range = sc.nextInt();
+////            sc.nextLine();
+//            int range = 10;
+//            System.out.print("Displaying all available paths in the within  " + ( adjacencymatrix[iCity][jCity] + range ) + " mi");
+//
+//
+//            paths = new possible_paths_1(startcity, endcity, range, cityWeatherMap, temperature, mileage, possiblePathCode);
+//            List<List<String>> allpaths = paths.findAllPaths();
+            Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage);
+            shortest_path = Dijkstra.return_shortest_path();
+            System.out.println("Total Distance = "+ Dijkstra.getDistance(adjacencymatrix,shortest_path));
+            //System.out.println("Dijkstra Shortest Path: " + shortest_path);
             
         }else if(user_selection == 2) {
         	
-        	System.out.println(startcity);
-        	
-        	Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage);
-        	shortest_path = Dijkstra.return_shortest_path();
+//        	System.out.println(startcity);
+//
+//        	Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage);
+//        	shortest_path = Dijkstra.return_shortest_path();
 //        	System.out.println("Dijkstra Shortest Path: " + shortest_path);
-        	
-        	
-        }else if(user_selection == 3) {
-        	
-        	Graph bellman_ford = new Graph(120, adjacencymatrix, startcity, endcity, mileage, temperature);
-            bellman_ford.find_and_addedges();
-            shortest_path = bellman_ford.return_shortest_path();
-//            System.out.println("Bellman Shortest Path: " + bellman_shortest);
 
-            
+            float[][] updatedAdjacencyMatrix = updateAdjacencyMatrix(adjacencymatrix);
+            Dijkstras Dijkstra1 = new Dijkstras(startcity, endcity, temperature, updatedAdjacencyMatrix, mileage);
+            shortest_path = Dijkstra1.return_shortest_path();
+            System.out.println("Dijkstra Shortest Path: " + shortest_path);
+            System.out.println("Total Distance = "+ Dijkstra1.getDistance(adjacencymatrix,shortest_path));
+
+        	
+        	
         }else {
         	System.out.println("Error selection. Please try again !");
         	return;
@@ -190,7 +226,7 @@ public class Main {
 			} catch (IOException e) {
 			    e.printStackTrace();
 			}
-			visualizeGraph();
+			//visualizeGraph();
 			
 		}
     }

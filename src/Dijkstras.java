@@ -8,13 +8,13 @@ public class Dijkstras {
 	private static String[] cityList = {"MillCity-NV","Eureka-NV","Wells-NV","Howe-ID","Jackpot-NV","Montello-NV","Owyhee-NV","Eugene-OR","Gresham-OR","Hillsbboro-OR","Bend-OR","Beaverton-OR","Medford-OR","Johnday-OR","Roseburg-OR","Bakercity-OR","Salem-OR","Newport-OR","Ashland-OR","Riley-OR","Seattle-WA","Spokane-WA","Tacoma-WA","Vancouver-WA","Bellevue-WA","Kent-WA","Leavenworth-WA","Yakima-WA","Richland-WA","Pullman-WA","WestWendover-NV","LosAngeles-CA","SanDiego-CA","SanJose-CA","SanFrancisco-CA","Fresno-CA","Sacramento-CA","LongBeach-CA","Redding-CA","Bakersfield-CA","Bishop-CA","Irvine-CA","Darwin-CA","Bayswater-CA","Arvin-CA","Albuquerque-NM","LasCruces-NM","RioRancho-NM","SantaFe-NM","Roswell-NM","SaltLakeCity-UT","WestValleyCity-UT","Provo-UT","WestJordan-UT","Sandy-UT","Orem-UT","Ogden-UT","Missoula-MT","GreatFalls-MT","Bozeman-MT","Butte-SilverBow-MT","Helena-MT","Kalispell-MT","Almosa-CO","cortez-CO","GrandJunction-CO","Pueblo-CO","Lamar-CO","Fortcollins-CO","Aspen-CO","Telluride-CO","Montrose-CO","Prescott-AZ","Buckeye-AZ","Sedona-AZ","Tucson-AZ","Phoenix-AZ","Chinle-AZ","Kingman-AZ","Laramie-WY","Gillette-WY","RockSprings-WY","Sheridan-WY","GreenRiver-WY","Evanston-WY","Lander-WY","Rawlins-WY","Casper-WY","Cody-WY","Dubois-WY","JordanValley-OR","Rome-OR","Adrian-OR","Nyssa-OR","Owyhee-OR","Williston-ND","Dickinson-ND","Bowman-NE","Harrison-NE","Imperial-NE","Alliance-NE","Grant-NS","ELPaso-TX","Tribune-NV","SharonSprings-KS","Loeti-KS","Boise-ID","Meridian-ID","Nampa-ID","IdahoFalls-ID","Pocatello-ID","Caldwell-ID","Ketchum-ID","Chilly-ID","May-ID","Donnelly-ID","Buhl-ID","Kamaih-ID","Butte-MT"};
 	private static List<String> stringList = new ArrayList<>(Arrays.asList(cityList));
 	static display_temperatures temperature;
-	private int[][] adj_matrix = null;
+	private float[][] adj_matrix = null;
 	public static float mileage;
 	static StringBuilder shortest_path = new StringBuilder();
 	public static int i;
 	public static String endcity;
 	
-	public Dijkstras(String startcity, String endcity, display_temperatures temperature, int[][] adjacencymatrix, float mileage) {
+	public Dijkstras(String startcity, String endcity, display_temperatures temperature, float[][] adjacencymatrix, float mileage) {
 		int startVertex = 0; 
 		int endVertex = 0; 
 		this.temperature = temperature;
@@ -43,14 +43,31 @@ public class Dijkstras {
             } 
         }
 		
-		System.out.println("startcity: " + startcity + " startVertex : " + startVertex + " endcity: " + endcity + " endVertex : " + endVertex);
+		//System.out.println("startcity: " + startcity + " startVertex : " + startVertex + " endcity: " + endcity + " endVertex : " + endVertex);
 		dijkstra(adj_matrix, startVertex, endVertex);
 	}
+
+    public static float getDistance(float[][] distanceData,String path){
+        String[] cities = path.split(",");
+        float distance = 0;
+        for(int i=0;i<cities.length-1;i++){
+            distance = distance + distanceData[findIndex(cities[i])][findIndex(cities[i+1])];
+        }
+        return distance;
+    }
+    private static int findIndex(String city) {
+        for (int i = 0; i < cityList.length; i++) {
+            if (cityList[i].toLowerCase().replaceAll("\\s", "").contains(city.toLowerCase().replaceAll("\\s", ""))) {
+                return i;
+            }
+        }
+        return 0;
+    }
 	
 	
-	private static void dijkstra(int[][] adjacencyMatrix, int startVertex, int destinationVertex) {
+	private static void dijkstra(float[][] adjacencyMatrix, int startVertex, int destinationVertex) {
         int nVertices = adjacencyMatrix[0].length;
-        int[] shortestDistances = new int[nVertices];
+        float[] shortestDistances = new float[nVertices];
         boolean[] added = new boolean[nVertices];
 
         for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
@@ -64,7 +81,7 @@ public class Dijkstras {
 
         for (int i = 1; i < nVertices; i++) {
             int nearestVertex = -1;
-            int shortestDistance = Integer.MAX_VALUE;
+            float shortestDistance = Integer.MAX_VALUE;
 
             // Find the nearest vertex among the non-added vertices
             for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
@@ -82,7 +99,7 @@ public class Dijkstras {
             added[nearestVertex] = true;
 
             for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
-                int edgeDistance = adjacencyMatrix[nearestVertex][vertexIndex];
+                float edgeDistance = adjacencyMatrix[nearestVertex][vertexIndex];
 
                 if (vertexIndex != nearestVertex && !added[vertexIndex] && edgeDistance > 0
                         && edgeDistance < THRESHOLD && (shortestDistance + edgeDistance) < shortestDistances[vertexIndex]) {
@@ -95,14 +112,14 @@ public class Dijkstras {
         printSolution(startVertex, destinationVertex, shortestDistances, parents, stringList);
     }
 
-    private static void printSolution(int startVertex, int destinationVertex, int[] distances, int[] parents, List<String> stringList) {
+    private static void printSolution(int startVertex, int destinationVertex, float[] distances, int[] parents, List<String> stringList) {
         int nVertices = distances.length;
-        System.out.print("\nDistance from " + stringList.get(startVertex) + " to " + stringList.get(destinationVertex) + " : ");
+        //System.out.print("\nDistance from " + stringList.get(startVertex) + " to " + stringList.get(destinationVertex) + " : ");
 
         if (distances[destinationVertex] == Integer.MAX_VALUE) {
             System.out.println("No path found from " + startVertex + " to " + destinationVertex);
         } else {
-            System.out.print(distances[destinationVertex] + " miles\n\nThe Path is as follows: \n");
+            System.out.print("The Path is as follows: \n");
             
             printPath(destinationVertex, parents, stringList);
             
@@ -119,14 +136,14 @@ public class Dijkstras {
 
         String currentCity = stringList.get(currentVertex);
         currentCity = currentCity.toLowerCase().replace (" ","");
-        System.out.println(currentCity + " -> ");
+        System.out.print(currentCity + " -> ");
         shortest_path.append(currentCity);
 
         if (!currentCity.equals(endcity)) {
             shortest_path.append(",");
         }
 //        System.out.println("In Dijk: " + currentCity);
-        temperature.fetch_display(" ", currentCity, 1);
+        //temperature.fetch_display(" ", currentCity, 1);
     }
     
     
