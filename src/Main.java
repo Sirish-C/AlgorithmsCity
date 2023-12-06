@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Main {
 	public static String shortest_path = null;
+    public static String userInput= null;
 
     public static int getSeaLevel(List<List<String>> seaLevelData, int index){
         List<String> test = seaLevelData.get((index));
@@ -73,7 +74,7 @@ public class Main {
         System.out.println();
         
         System.out.print("Enter date and time of your travel commencement (yyyy-MM-dd HH:mm): ");
-        String userInput = sc.nextLine();
+        userInput = sc.nextLine();
         System.out.println();
         
         if (userInput.isEmpty()) {
@@ -94,9 +95,7 @@ public class Main {
             System.out.println("Error: Unable to parse the input. Please provide a valid date and time format.");
             return;
         }
-        
-        
-        System.out.print("Please enter the average mileage of your vehicle: (in mpg)");
+
         float mileage = 30;
         
         
@@ -156,28 +155,30 @@ public class Main {
         }
 
 
-//        System.out.println("Please choose any one of the following: ");
-//        System.out.println("1. Display all possible paths from " + startcity + " to " + endcity);
-//        System.out.println("2. Run Dijkstra's Algorithm ");
-//        System.out.println("3. Run Bellman-Ford Algorithm");
+        int user_selection;
+        do{
         System.out.println("Please choose any one of the following: ");
-        System.out.println("1. Shortest Path from " + startcity + " to " + endcity);
-        System.out.println("2. Lowest gas consumption path from " + startcity + " to " + endcity);
-        System.out.println("3. Safest Travel path from"+ startcity + " to " + endcity);
+        System.out.println("1. Visualizing all cities");
+        System.out.println("2. Shortest Path from " + startcity + " to " + endcity);
+        System.out.println("3. Lowest gas consumption path from " + startcity + " to " + endcity);
+        System.out.println("4. Safest Travel path from"+ startcity + " to " + endcity);
+        System.out.println("5. Exit");
         
-        int user_selection = sc.nextInt();
+        user_selection = sc.nextInt();
         
         
         float[][] adjacencymatrix = distanceDataManager.readCSV(distanceWithoutHeaders);
-        
-		if(user_selection == 1) {
+        if(user_selection == 1 ){
+
+        }
+		else if(user_selection == 2) {
             Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage, true);
             shortest_path = Dijkstra.return_shortest_path();
             System.out.println("Dijkstra Shortest Path: ");
             Dijkstra.display(shortest_path,adjacencymatrix);
             shortest_path = Dijkstra.return_path();
             
-        }else if(user_selection == 2) {
+        }else if(user_selection == 3) {
             float[][] updatedAdjacencyMatrix = updateAdjacencyMatrix(adjacencymatrix);
             Dijkstras Dijkstra1 = new Dijkstras(startcity, endcity, temperature, updatedAdjacencyMatrix, mileage,false);
             shortest_path = Dijkstra1.return_shortest_path();
@@ -188,38 +189,42 @@ public class Main {
 
         	
         	
-        }else {
+        } else if (user_selection ==4) {
+            int iCity = distanceDataManager.getIndex(startcity);
+            int jCity = distanceDataManager.getIndex(endcity);
+
+            System.out.println("Distance between " + startcity + " and " + endcity + " is " + adjacencymatrix[iCity][jCity]);
+            System.out.print("Please specify how many miles additionally you would like to travel : " );
+            int range = 30;
+            System.out.println();
+            System.out.print("Displaying all available paths in the within  " + ( adjacencymatrix[iCity][jCity] + range ) + " mi");
+
+
+            paths = new possible_paths_1(startcity, endcity, range, cityWeatherMap, temperature, mileage, possiblePathCode);
+            List<List<String>> allpaths = paths.findAllPaths();
+            System.out.println(allpaths);
+        } else {
         	System.out.println("Error selection. Please try again !");
         	return;
         }
+
+        System.out.println("DO you want to visualize the map ? y/n : ");
+        String decision = sc.nextLine();
+        if(decision.equalsIgnoreCase("y")){
+            if(shortest_path != null) {
+
+                visualizeGraph();
+
+            }
+        }
 		
-		if(shortest_path != null) {
-
-
-//			SwingUtilities.invokeLater(() -> {
-//	            double gasMileage = 0;
-//	            DataReader dataReader = new DataReader("C:\\Users\\saini\\OneDrive\\Desktop\\New folder\\edu.pnw\\src\\main\\java\\edu\\pnw\\distance_matrics.csv");
-//	            GraphVisualizer graphVisualizer = new GraphVisualizer(dataReader);
-//
-//	            // Prompt user for input and perform visualization
-//	            promptAndVisualize(dataReader, graphVisualizer);
-//	        });
-
-			
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputGraphical))) {
-			    writer.write(shortest_path);
-			} catch (IOException e) {
-			    e.printStackTrace();
-			}
-			//visualizeGraph();
-			
-		}
+		}while(user_selection != 5);
     }
     private static void visualizeGraph() {
         // Create an instance of the visualization class
         visualization visual = new visualization();
 
         // Call the main method of the visualization class
-        visual.main(new String[]{});
+        visual.get_data(shortest_path, userInput);
     }
 }

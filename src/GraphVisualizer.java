@@ -1,3 +1,5 @@
+
+
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -58,13 +60,13 @@ public class GraphVisualizer {
         animateGraphLayout(vv);
     }
 
-    public void visualizePath(String path, double gasMileage) {
+    public void visualizePath(String path, double gasMileage,String inputDate, String inputTime) {
+//    	path = path + "," + "Dummy";
+        System.out.println("Path = " + path);
         String[] pathCities = path.split(",");
         Graph<String, String> pathGraph = createGraphForPath(pathCities, gasMileage);
         visualizeGraph(pathGraph, pathCities, gasMileage);
     }
-
-
 
     private void visualizeGraph(Graph<String, String> pathGraph, String[] pathCities, double gasMileage) {
         Graph<String, String> graph = pathGraph;
@@ -86,13 +88,37 @@ public class GraphVisualizer {
         VisualizationViewer<String, String> vv = new VisualizationViewer<>(layout, layoutSize);
 
         // Customize edge labels
-        vv.getRenderContext().setEdgeLabelTransformer(e -> e.substring(e.lastIndexOf('-') + 1));
+        vv.getRenderContext().setEdgeLabelTransformer(e -> " ");
+        vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller());
+
 
         // Customize vertex labels
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
 
         // Customize vertex colors based on state ID
         vv.getRenderContext().setVertexFillPaintTransformer(vertex -> dataReader.getStateColors().get(vertex));
+
+        // Add tooltips to vertices
+        vv.setVertexToolTipTransformer(new ToStringLabeller() {
+
+            public String transform(String vertex) {
+                return generateVertexTooltip(vertex, gasMileage, graph);
+            }
+
+
+        });
+
+
+        // Add tooltips to edges
+        vv.setEdgeToolTipTransformer(e -> generateEdgeTooltip(e, gasMileage));
+
+        // Add color-coding based on weather condition
+        vv.getRenderContext().setEdgeDrawPaintTransformer(e -> {
+            String[] edgeInfo = e.split("-");
+            String weatherStatus = edgeInfo[3];
+            // Customize colors based on weather status (e.g., green for clear, yellow for cloudy, etc.)
+            return getEdgeColorBasedOnWeather(weatherStatus);
+        });
 
         JFrame frame = new JFrame("Graph Visualization");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -110,11 +136,93 @@ public class GraphVisualizer {
         vv.getRenderContext().setMultiLayerTransformer(vv.getRenderContext().getMultiLayerTransformer());
         vv.scaleToLayout(scaler);
     }
+
+    // Generate a tooltip for each vertex
+    private String generateVertexTooltip(String vertex, double gasMileage, Graph<String, String> graph)  {
+        // Check if weather data exists for the current vertex
+        if (dataReader.getWeatherData().containsKey(vertex)) {
+            // Additional information for the current vertex
+            Map<String, String> vertexWeather = dataReader.getWeatherData().get(vertex);
+            String temperature = vertexWeather.get("Temperature");
+            String weatherStatus = vertexWeather.containsKey("WeatherCondition") ? vertexWeather.get("WeatherCondition") : "N/A";
+            String seaLevel = dataReader.getSeaLevelData().containsKey(vertex) ? dataReader.getSeaLevelData().get(vertex) : "N/A";
+            //String dateTime = inputDate + " " + inputTime;
+
+            // Get neighbors of the current vertex
+            Collection<String> neighbors = graph.getSuccessors(vertex);
+
+            // Build a string to store information for each neighbor
+            StringBuilder neighborInfo = new StringBuilder();
+
+            for (String neighbor : neighbors) {
+                Map<String, String> neighborWeather = dataReader.getWeatherData().get(vertex);
+
+                // Check if weather data exists for the neighbor
+                if (neighborWeather != null) {
+                    // Calculate distance and gas consumption
+                    double distance = dataReader.getDistances().get(vertex).get(neighbor);
+                    double gasConsumption = distance / gasMileage;
+
+                    // Append information for each neighbor
+                    neighborInfo.append("<br>Neighbor: ").append(neighbor)
+                            .append(", Distance: ").append(distance).append(" miles")
+                            .append(", Gas Consumption: ").append(gasConsumption).append(" gallons")
+                            .append(", Weather: ").append(neighborWeather.get("WeatherCondition"))
+                            .append(", Temperature: ").append(neighborWeather.get("Temperature"))
+                            .append(", DateTime: ").append(neighborWeather.get("DateTime"));
+
+
+
+
+                }
+
+            }
+
+            return "<html><b>" + vertex + "</b><br>Temperature: " + temperature + " F<br>Weather Condition: " + weatherStatus +
+                    "<br>Sea Level: " + seaLevel + neighborInfo.toString() + "</html>";
+        } else {
+            return vertex;
+        }
+    }
+    private String generateEdgeTooltip(String edge, double gasMileage) {
+        String[] edgeInfo = edge.split("-");
+        String cityName = edgeInfo[0];
+        String neighborCity = edgeInfo[1];
+
+        try {
+            // Extracting distance, gasConsumption, weatherStatus, temperature, and dateTime
+            double distance = Double.parseDouble(edgeInfo[2]);
+            double gasConsumption = Double.parseDouble(edgeInfo[3]);
+            String weatherStatus = edgeInfo[4];
+
+            // Extracting temperature and dateTime
+            String[] temperatureAndTime = edgeInfo[5].split("\\s+");
+            double temperatureValue = Double.parseDouble(temperatureAndTime[0]);
+            String dateTime = temperatureAndTime[1];
+
+            // Rest of your code
+            // ...
+
+            // Return the formatted tooltip
+            return String.format("City: %s\nNeighbor: %s\nDistance: %.2f miles\nGas Consumption: %.2f gallons\nWeather: %s\nTemperature: %.2f°C\nDateTime: %s",
+                    cityName, neighborCity, distance, gasConsumption, weatherStatus, temperatureValue, dateTime);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException | NullPointerException e) {
+            // Handle the exception, log an error, or provide a default tooltip
+            e.printStackTrace(); // For debugging purposes, you can replace this with a proper logging mechanism
+            return "Error generating tooltip"; // Provide a default tooltip or handle the error accordingly
+        }
+    }
+
+
+
+
     private Graph<String, String> createGraphForPath(String[] pathCities, double gasMileage) {
         Graph<String, String> graph = new DirectedSparseGraph<>();
 
         for (int i = 0; i < pathCities.length - 1; i++) {
             String cityName = pathCities[i];
+            System.out.println("CityName: " + cityName);
+
             String neighborCity = pathCities[i + 1];
             cityName = cityName.trim().toLowerCase().replaceAll("\\s", "");
             neighborCity = neighborCity.trim().toLowerCase().replaceAll("\\s", "");
@@ -122,30 +230,31 @@ public class GraphVisualizer {
             // Check if weather data exists for the city
             if (dataReader.getWeatherData().containsKey(cityName) && dataReader.getWeatherData().containsKey(neighborCity)) {
                 Map<String, String> cityWeather = dataReader.getWeatherData().get(cityName);
-                Map<String, String> neighborWeather = dataReader.getWeatherData().get(neighborCity);
 
                 double distance = dataReader.getDistances().get(cityName).get(neighborCity);
 
-                // Create edge label with distance and gas consumption
-                double gasConsumption = Math.round((distance / gasMileage) * 100.0) / 100.0;
-                String weatherStatus = neighborWeather.containsKey("WeatherCondition") ? neighborWeather.get("WeatherCondition") : "N/A";
-                String temperature = neighborWeather.get("Temperature");
+                // Use date and time information for the edge label
+                String cityDateTime = cityWeather.containsKey("DateTime") ? cityWeather.get("DateTime") : "N/A";
 
-                String edgeLabel = cityName + "-" + neighborCity + "-" + distance + "m" + "," + gasConsumption + "g" + "," + weatherStatus + "," + temperature + "f";
+                // Create edge label with distance and source city date/time information
+                String edgeLabel = cityDateTime + "-" + distance + "m";
 
                 // Add directed edge
                 graph.addEdge(edgeLabel, cityName, neighborCity, EdgeType.DIRECTED);
             } else if (!dataReader.getWeatherData().containsKey(cityName)) {
-                //System.out.println("Weather data not available for city: " + cityName);
+                // System.out.println("Weather data not available for city: " + cityName);
             } else if (!dataReader.getWeatherData().containsKey(neighborCity)) {
-                //System.out.println("Weather data not available for city: " + neighborCity);
+                // System.out.println("Weather data not available for city: " + neighborCity);
             }
         }
 
-        // Visualize the graph after creating it
         visualizeText(graph, gasMileage, pathCities);
-
         return graph;
+
+        // Visualize the graph after creating it
+        //
+
+
     }
 
     private void visualizeText(Graph<String, String> graph, double gasMileage, String[] pathCities) {
@@ -301,6 +410,35 @@ public class GraphVisualizer {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+    public Color getEdgeColorBasedOnWeather(String weatherCondition) {
+        if (isSunny(weatherCondition) || isCloudy(weatherCondition) || isClear(weatherCondition)) {
+            return Color.GREEN;
+        } else if (isRainy(weatherCondition) || isIntermediateCloudy(weatherCondition)) {
+            return Color.RED;
+        } else {
+            return Color.ORANGE;
+        }
+    }
+
+    private boolean isSunny(String weatherCondition) {
+        return weatherCondition.equalsIgnoreCase("sunny");
+    }
+
+    private boolean isCloudy(String weatherCondition) {
+        return weatherCondition.equalsIgnoreCase("cloudy");
+    }
+
+    private boolean isClear(String weatherCondition) {
+        return weatherCondition.equalsIgnoreCase("clear");
+    }
+
+    private boolean isRainy(String weatherCondition) {
+        return weatherCondition.equalsIgnoreCase("rainy");
+    }
+
+    private boolean isIntermediateCloudy(String weatherCondition) {
+        return weatherCondition.equalsIgnoreCase("intermediate cloudy");
     }
 
     private void animateGraphLayout(VisualizationViewer<String, String> vv) {

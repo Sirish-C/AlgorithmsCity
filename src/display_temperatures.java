@@ -67,7 +67,7 @@ public class display_temperatures {
 						if(i==1)
 						{
 							return (" [ Weather: " + weatherData.getWeather() +
-									"; Sea Level: " + todata.getseaLeveldata() + " ft ]");
+									"; Sea Level: " + todata.getseaLeveldata().get(0) + " ft ]");
 						}
 
         	        }
