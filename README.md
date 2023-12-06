@@ -1,6 +1,7 @@
 # AlgorithmsCity
 ## Procedure to run the code
 (The Procesure followed focuses on execution of the project in IntelliJ IDEA Pleatform).
+
 Step 1: Install IntelliJ IDE:
 Ensure that IntelliJ IDE is installed on your computer to execute the Java Project.
 
