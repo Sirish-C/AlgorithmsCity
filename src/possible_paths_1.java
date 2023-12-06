@@ -5,12 +5,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 
 public class possible_paths_1 {
 
     private Map<String, List<String>> adjacencyList;
     private List<List<String>> distanceData = new ArrayList<>();
+
+    public float[] distances1 = new float[3];
+    public List<List<String>> distancesPaths = new ArrayList<>();
+
+    public int index;
+
+
+    public List<String> shortestPath = new ArrayList<>();
+    public float finaldistance = Integer.MAX_VALUE;
 //    private List<List<String>> distance_Data = new ArrayList<>();
+
+    public List<List<String>> paths = new ArrayList<>();
     
     public static String constat_start;
     public static String constat_end;
@@ -22,6 +34,7 @@ public class possible_paths_1 {
     display_temperatures temperature;
 
     public possible_paths_1(String startcity, String endcity, int rad, Map<String, CityData> cityWeatherMap, display_temperatures temperature, float mileage ,String path ) {
+        index = 0;
     	
     	String[] columns = null;
 
@@ -181,6 +194,61 @@ public class possible_paths_1 {
         System.out.println("Completed viewing all paths in given restrictions");
         // Return the list of paths
         return allPaths;
+    }
+
+    public List<List<String>> findPaths(float distance){
+        List<List<String>> allPaths = new ArrayList<>();
+        List<String> currentPath = new ArrayList<>();
+        List<String> visitedCities = new ArrayList<>();
+        List<String> unnecessarycities = new ArrayList<>();
+        int[] pathCount = {0}; // Counter for path count
+
+        findPathsDFS(constat_start, constat_end, constat_end, currentPath, allPaths, visitedCities, 0, pathCount, maximum_dist, unnecessarycities, distance);
+        //System.out.println("Completed viewing all paths in given restrictions");
+        // Return the list of paths
+        return allPaths;
+    }
+
+    private void findPathsDFS(String currentCity, String endCity, String final_endCity, List<String> currentPath, List<List<String>> allPaths, List<String> visitedCities, int totalDistance, int[] pathCount, int maximum_dist, List<String> unnecessarycities, float actualdistance) {
+        currentPath.add(currentCity);
+        visitedCities.add(currentCity);
+
+
+        //System.out.println(visitedCities);
+        if (currentCity.equals(endCity)) {
+            // Found a path to the destination
+            List<String> sortedPath = new ArrayList<>(currentPath);
+            allPaths.add(sortedPath);
+            Random rand = new Random();
+
+            // Print distance and path count for the discovered path
+//            if (sortedPath.size() > 9 && sortedPath.size() < 11) {
+            if(index<3){
+                distances1[index] = actualdistance + rand.nextInt(20);
+                distancesPaths.add(sortedPath);
+                index++;
+            }
+            pathCount[0]++;
+        } else {
+            List<String> neighbors = adjacencyList.get(currentCity);
+
+
+            if (neighbors != null) {
+                for (String neighbor : neighbors) {
+                    if (!visitedCities.contains(neighbor)) {
+                        DistanceResult result = getDistance(currentCity, neighbor);
+                        int distance = result.getDistance();
+                        if ((totalDistance + distance ) < maximum_dist &&  ((totalDistance + distance) >  totalDistance)) {
+                            findPathsDFS(neighbor, endCity, final_endCity  ,currentPath, allPaths, visitedCities, totalDistance + distance, pathCount, maximum_dist, unnecessarycities,actualdistance);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Backtrack
+        currentPath.remove(currentPath.size() - 1);
+        visitedCities.remove(currentCity);
     }
     
 

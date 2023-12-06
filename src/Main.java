@@ -9,6 +9,8 @@ public class Main {
 	public static String shortest_path = null;
     public static String userInput= null;
 
+    public static int user_selection;
+
     public static int getSeaLevel(List<List<String>> seaLevelData, int index){
         List<String> test = seaLevelData.get((index));
         return Integer.parseInt(test.get(1));
@@ -153,7 +155,6 @@ public class Main {
         }
 
 
-        int user_selection;
         do{
         System.out.println("Please choose any one of the following: ");
         System.out.println("1. Visualizing all cities");
@@ -161,21 +162,35 @@ public class Main {
         System.out.println("3. Lowest gas consumption path from " + startcity + " to " + endcity);
         System.out.println("4. Safest Travel path from"+ startcity + " to " + endcity);
         System.out.println("5. Exit");
-        
+
         user_selection = sc.nextInt();
         
         
         float[][] adjacencymatrix = distanceDataManager.readCSV(distanceWithoutHeaders);
         if(user_selection == 1 ){
-
+            visualizeGraph(user_selection);
         }
 		else if(user_selection == 2) {
+            int range = 10;
+
             Dijkstras Dijkstra = new Dijkstras(startcity, endcity, temperature, adjacencymatrix, mileage, true);
             shortest_path = Dijkstra.return_shortest_path();
             System.out.println("Dijkstra Shortest Path: ");
             Dijkstra.display(shortest_path,adjacencymatrix);
             shortest_path = Dijkstra.return_path();
-            
+
+            System.out.println("The other paths are : ");
+            paths = new possible_paths_1(startcity, endcity, range, cityWeatherMap, temperature, mileage, possiblePathCode);
+            List<List<String>> otherPaths = paths.findPaths(Dijkstra.shortestDistance);
+            for(int i=0 ;i<3;i++){
+                try{
+                    System.out.println("Path : "+paths.distancesPaths.get(i)+" Distance : "+paths.distances1[i]);
+                }
+                catch (Exception e){
+
+                }
+
+            }
         }else if(user_selection == 3) {
             float[][] updatedAdjacencyMatrix = updateAdjacencyMatrix(adjacencymatrix);
             Dijkstras Dijkstra1 = new Dijkstras(startcity, endcity, temperature, updatedAdjacencyMatrix, mileage,false);
@@ -204,23 +219,28 @@ public class Main {
         	return;
         }
 
-        System.out.println("DO you want to visualize the map ? y/n : ");
-        String decision = sc.nextLine();
+        System.out.println("Do you want to visualize the map ? y/n : ");
+        String decision = sc.next();
         if(decision.equalsIgnoreCase("y")){
             if(shortest_path != null) {
 
-                visualizeGraph();
+                visualizeGraph(user_selection);
 
             }
         }
 		
 		}while(user_selection != 5);
     }
-    private static void visualizeGraph() {
+    private static void visualizeGraph(int user_selection) {
+
         // Create an instance of the visualization class
         visualization visual = new visualization();
 
         // Call the main method of the visualization class
-        visual.get_data(shortest_path, userInput);
+        if(user_selection ==1){
+            shortest_path = "";
+        }
+        visual.get_data(shortest_path, userInput,user_selection);
+
     }
 }

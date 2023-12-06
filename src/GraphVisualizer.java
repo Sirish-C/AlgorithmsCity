@@ -1,5 +1,3 @@
-
-
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -49,7 +47,7 @@ public class GraphVisualizer {
         vv.getRenderContext().setEdgeLabelTransformer(e -> e.substring(e.lastIndexOf('-') + 1));
 
         // Customize vertex labels
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<>());
 
         // Customize vertex colors based on state ID
         vv.getRenderContext().setVertexFillPaintTransformer(vertex -> dataReader.getStateColors().get(vertex));
@@ -61,8 +59,6 @@ public class GraphVisualizer {
     }
 
     public void visualizePath(String path, double gasMileage,String inputDate, String inputTime) {
-//    	path = path + "," + "Dummy";
-        System.out.println("Path = " + path);
         String[] pathCities = path.split(",");
         Graph<String, String> pathGraph = createGraphForPath(pathCities, gasMileage);
         visualizeGraph(pathGraph, pathCities, gasMileage);
@@ -89,18 +85,19 @@ public class GraphVisualizer {
 
         // Customize edge labels
         vv.getRenderContext().setEdgeLabelTransformer(e -> " ");
-        vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<>());
 
 
         // Customize vertex labels
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<>());
 
         // Customize vertex colors based on state ID
         vv.getRenderContext().setVertexFillPaintTransformer(vertex -> dataReader.getStateColors().get(vertex));
 
         // Add tooltips to vertices
-        vv.setVertexToolTipTransformer(new ToStringLabeller() {
+        vv.setVertexToolTipTransformer(new ToStringLabeller<String>() {
 
+            @Override
             public String transform(String vertex) {
                 return generateVertexTooltip(vertex, gasMileage, graph);
             }
@@ -137,82 +134,77 @@ public class GraphVisualizer {
         vv.scaleToLayout(scaler);
     }
 
-    // Generate a tooltip for each vertex
-    private String generateVertexTooltip(String vertex, double gasMileage, Graph<String, String> graph)  {
-        // Check if weather data exists for the current vertex
-        if (dataReader.getWeatherData().containsKey(vertex)) {
-            // Additional information for the current vertex
-            Map<String, String> vertexWeather = dataReader.getWeatherData().get(vertex);
-            String temperature = vertexWeather.get("Temperature");
-            String weatherStatus = vertexWeather.containsKey("WeatherCondition") ? vertexWeather.get("WeatherCondition") : "N/A";
-            String seaLevel = dataReader.getSeaLevelData().containsKey(vertex) ? dataReader.getSeaLevelData().get(vertex) : "N/A";
-            //String dateTime = inputDate + " " + inputTime;
 
-            // Get neighbors of the current vertex
-            Collection<String> neighbors = graph.getSuccessors(vertex);
+    private String generateVertexTooltip(String vertex, double gasMileage, Graph<String, String> graph) {
+        try {
+            // Check if weather data exists for the current vertex
+            if (dataReader.getWeatherData().containsKey(vertex)) {
+                // Additional information for the current vertex
+                Map<String, String> vertexWeather = dataReader.getWeatherData().get(vertex);
+                String temperature = vertexWeather.get("Temperature");
+                String weatherStatus = vertexWeather.containsKey("WeatherCondition") ? vertexWeather.get("WeatherCondition") : "N/A";
+                String seaLevel = dataReader.getSeaLevelData().containsKey(vertex) ? dataReader.getSeaLevelData().get(vertex) : "N/A";
+                //String dateTime = inputDate + " " + inputTime;
 
-            // Build a string to store information for each neighbor
-            StringBuilder neighborInfo = new StringBuilder();
+                // Get neighbors of the current vertex
+                Collection<String> neighbors = graph.getSuccessors(vertex);
 
-            for (String neighbor : neighbors) {
-                Map<String, String> neighborWeather = dataReader.getWeatherData().get(vertex);
+                // Build a string to store information for each neighbor
+                StringBuilder neighborInfo = new StringBuilder();
 
-                // Check if weather data exists for the neighbor
-                if (neighborWeather != null) {
-                    // Calculate distance and gas consumption
-                    double distance = dataReader.getDistances().get(vertex).get(neighbor);
-                    double gasConsumption = distance / gasMileage;
+                for (String neighbor : neighbors) {
+                    Map<String, String> neighborWeather = dataReader.getWeatherData().get(vertex);
 
-                    // Append information for each neighbor
-                    neighborInfo.append("<br>Neighbor: ").append(neighbor)
-                            .append(", Distance: ").append(distance).append(" miles")
-                            .append(", Gas Consumption: ").append(gasConsumption).append(" gallons")
-                            .append(", Weather: ").append(neighborWeather.get("WeatherCondition"))
-                            .append(", Temperature: ").append(neighborWeather.get("Temperature"))
-                            .append(", DateTime: ").append(neighborWeather.get("DateTime"));
+                    // Check if weather data exists for the neighbor
+                    if (neighborWeather != null) {
+                        // Calculate distance and gas consumption
+                        double distance = dataReader.getDistances().get(vertex).get(neighbor);
+                        double gasConsumption = distance / gasMileage;
 
-
-
-
+                        // Append information for each neighbor
+                        neighborInfo.append("<br>Neighbor: ").append(neighbor)
+                                .append(", Distance: ").append(distance).append(" miles")
+                                .append(", Gas Consumption: ").append(gasConsumption).append(" gallons")
+                                .append(", Weather: ").append(neighborWeather.get("WeatherCondition"))
+                                .append(", Temperature: ").append(neighborWeather.get("Temperature"))
+                                .append(", DateTime: ").append(neighborWeather.get("DateTime"));
+                    }
                 }
 
+                return "<html><b>" + vertex + "</b><br>Temperature: " + temperature + " F<br>Weather Condition: " + weatherStatus +
+                        "<br>Sea Level: " + seaLevel + neighborInfo.toString() + "</html>";
+            } else {
+                return vertex;
             }
-
-            return "<html><b>" + vertex + "</b><br>Temperature: " + temperature + " F<br>Weather Condition: " + weatherStatus +
-                    "<br>Sea Level: " + seaLevel + neighborInfo.toString() + "</html>";
-        } else {
-            return vertex;
+        } catch (Exception e) {
+            // Handle the exception without printing the stack trace
+            return "Error generating tooltip";
         }
     }
-    private String generateEdgeTooltip(String edge, double gasMileage) {
-        String[] edgeInfo = edge.split("-");
-        String cityName = edgeInfo[0];
-        String neighborCity = edgeInfo[1];
 
+
+
+    private String generateEdgeTooltip(String edge, double gasMileage) {
         try {
-            // Extracting distance, gasConsumption, weatherStatus, temperature, and dateTime
+            String[] edgeInfo = edge.split("-");
+            String cityName = edgeInfo[0];
+            String neighborCity = edgeInfo[1];
+
             double distance = Double.parseDouble(edgeInfo[2]);
             double gasConsumption = Double.parseDouble(edgeInfo[3]);
             String weatherStatus = edgeInfo[4];
 
-            // Extracting temperature and dateTime
             String[] temperatureAndTime = edgeInfo[5].split("\\s+");
             double temperatureValue = Double.parseDouble(temperatureAndTime[0]);
             String dateTime = temperatureAndTime[1];
 
-            // Rest of your code
-            // ...
-
-            // Return the formatted tooltip
-            return String.format("City: %s\nNeighbor: %s\nDistance: %.2f miles\nGas Consumption: %.2f gallons\nWeather: %s\nTemperature: %.2f°C\nDateTime: %s",
+            return String.format("City: %s\nNeighbor: %s\nDistance: %.2f miles\nGas Consumption: %.2f gallons\nWeather: %s\nTemperature: %.2f°F\nDateTime: %s",
                     cityName, neighborCity, distance, gasConsumption, weatherStatus, temperatureValue, dateTime);
-        } catch (NumberFormatException | ArrayIndexOutOfBoundsException | NullPointerException e) {
-            // Handle the exception, log an error, or provide a default tooltip
-            e.printStackTrace(); // For debugging purposes, you can replace this with a proper logging mechanism
-            return "Error generating tooltip"; // Provide a default tooltip or handle the error accordingly
+        } catch (Exception e) {
+            // Handle the exception without printing the stack trace
+            return "Error generating tooltip";
         }
     }
-
 
 
 
@@ -221,8 +213,6 @@ public class GraphVisualizer {
 
         for (int i = 0; i < pathCities.length - 1; i++) {
             String cityName = pathCities[i];
-            System.out.println("CityName: " + cityName);
-
             String neighborCity = pathCities[i + 1];
             cityName = cityName.trim().toLowerCase().replaceAll("\\s", "");
             neighborCity = neighborCity.trim().toLowerCase().replaceAll("\\s", "");
@@ -248,13 +238,10 @@ public class GraphVisualizer {
             }
         }
 
-        visualizeText(graph, gasMileage, pathCities);
-        return graph;
-
         // Visualize the graph after creating it
-        //
+        visualizeText(graph, gasMileage, pathCities);
 
-
+        return graph;
     }
 
     private void visualizeText(Graph<String, String> graph, double gasMileage, String[] pathCities) {
@@ -293,6 +280,7 @@ public class GraphVisualizer {
                         System.out.println("WeatherCondition: " + weatherStatus);
                         System.out.println("Temperature: " + temperature + " F");
                         System.out.println("DateTime: " + datetime);
+
 
                         // Print temperature, unit, and sea_level information
                         String seaLevel = seaLevelData.containsKey(neighbor) ? seaLevelData.get(neighbor) : "N/A";

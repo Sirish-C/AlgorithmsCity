@@ -10,6 +10,8 @@ public class Dijkstras {
 	static display_temperatures temperature;
 	private float[][] adj_matrix = null;
 	public static float mileage;
+
+    public static float shortestDistance;
 	static StringBuilder shortest_path = new StringBuilder();
     static StringBuilder path = new StringBuilder();
 	public static int i;
@@ -142,6 +144,7 @@ public class Dijkstras {
         if (distances[destinationVertex] == Integer.MAX_VALUE) {
             System.out.println("No path found from " + startVertex + " to " + destinationVertex);
         } else {
+            shortestDistance = distances[destinationVertex];
             if(display){
                 System.out.println("\nDistance from " + stringList.get(startVertex) + " to " + stringList.get(destinationVertex) + " : "+ distances[destinationVertex] + " miles");
             }

@@ -30,18 +30,18 @@ public class visualization {
         SPECIFIC_PATH
     }
 
-    public static void get_data(String path, String dateandtime) {
+    public static void get_data(String path, String dateandtime, int user_selection) {
         SwingUtilities.invokeLater(() -> {
             double gasMileage = 0;
             DataReader dataReader = new DataReader(DISTANCE_CSV_FILE);
             GraphVisualizer graphVisualizer = new GraphVisualizer(dataReader);
 
             // Prompt user for input and perform visualization
-            promptAndVisualize(dataReader, graphVisualizer, path, dateandtime);
+            promptAndVisualize(dataReader, graphVisualizer, path, dateandtime, user_selection);
         });
     }
 
-    private static void promptAndVisualize(DataReader dataReader, GraphVisualizer graphVisualizer, String path, String dateandtime) {
+    private static void promptAndVisualize(DataReader dataReader, GraphVisualizer graphVisualizer, String path, String dateandtime, int user_selection) {
 
         String[] dateTimeParts = dateandtime.split(" ");
         String inputDate = null;
@@ -57,7 +57,12 @@ public class visualization {
 //        System.out.println("1. Visualize full graph");
 //        System.out.println("2. Visualize a specific path");
 //        int choice = scanner.nextInt();
-        int choice = 2;
+        int choice;
+        if(user_selection == 1){
+            choice = 1;
+        }else{
+            choice = 2;
+        }
 
         VisualizationOption visualizationOption = VisualizationOption.values()[choice - 1];
 
@@ -81,7 +86,6 @@ public class visualization {
 
 //        scanner.close();
     }
-
     private static String visualizePathFromFile(String outputPath, double gasMileage) {
         StringBuilder pathCitiesString = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(outputPath))) {
