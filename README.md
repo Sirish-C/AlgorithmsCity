@@ -24,5 +24,4 @@ Provide the inputs based on your choice as shown in the below figure:
 
 
 
-## SourceCode OnlineGDB
-[SourceCode](https://onlinegdb.com/XfIqGzbXI)
+
