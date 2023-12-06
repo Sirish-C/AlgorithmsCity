@@ -1,10 +1,11 @@
 # AlgorithmsCity
 ## Procedure to run the code
+(The Procesure followed focuses on execution of the project in IntelliJ IDEA Pleatform).
 Step 1: Install IntelliJ IDE:
-Ensure that IntelliJ IDE is installed on your computer to execute the Java code.
+Ensure that IntelliJ IDE is installed on your computer to execute the Java Project.
 
 Step 2: Create a Java Project:
-Open IntelliJ IDEA and create a new Java project. Import all the necessary libraries from the JUNG folder into your project.
+Open IntelliJ IDEA and create a new Java project. Import all the necessary libraries from the JUNG (Provided in the Submission) folder into your project.
 
 Step 3: Import Files into the Project:
 Make sure to import all the relevant files provided to you into the Java project you've just created. This includes the files from the JUNG library.
