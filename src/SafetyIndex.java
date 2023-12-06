@@ -2,6 +2,7 @@
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.io.*;
+import java.util.List;
 
 class Temperature {
     String cityName ;
@@ -133,32 +134,47 @@ public class SafetyIndex {
         }
         return null;
     }
-    public static float getScoreForPath(String shortestPath, LocalDateTime StartTime , String DatasetPath )throws Exception{
+
+    public static float getScoreForPath(List<String> Path, LocalDateTime StartTime, float avgSpeed , String DatasetPath , boolean isView )throws Exception{
+
+        ArrayList<String> shortestPath = new ArrayList<>(Path);
+
         SafetyIndex temp = new SafetyIndex(DatasetPath);
         Distance distance = new Distance(DatasetPath);
         LocalDateTime time = StartTime;
-        float speed = 30.3f;
-        System.out.println("Weather Status at "+time);
-        System.out.println();
-        String [] path = shortestPath.split(",");
-        int pathLength = path.length;
+        float speed = avgSpeed;
+        int pathLength = shortestPath.size()-1;
         float Score  = 0.0f;
-        for(int i =0;i<path.length-1;i++){
-            float dist = distance.getDistanceBetween(path[i] , path[i+1]);
-            System.out.println("==========================================");
-            System.out.println(path[i]+" --->"+path[i+1]);
-            System.out.printf("%-20s %-15.2f miles%n","Distance" , dist);
-            System.out.printf("%-20s %-15.2f hrs%n","Time" , ((dist/speed)));
+        float distanceTraveled  = 0f;
+        for(int i =0;i<shortestPath.size()-1;i++){
+            float dist = distance.getDistanceBetween(shortestPath.get(i) , shortestPath.get(i+1));
             time = time.plusHours((long)(dist/speed));
-            Temperature tempTime = getTemperature(path[i+1],time);
-            System.out.printf("%-20s %-20s%n","Destination Time" , tempTime.date);
-            System.out.printf("%-20s %-20s%n","Climate Condition" , tempTime.condition);
-            System.out.printf("%-20s %-15.2f F%n","Temperature" , tempTime.temperature);
+            Temperature tempTime = getTemperature(shortestPath.get(i+1),time);
             float s = getPoints(tempTime.condition);
-            System.out.printf("%-20s %-15.2f%n","SafetyScore" ,s);
+            distanceTraveled +=dist;
             Score += s;
+            if(isView) {
+                System.out.println("==========================================");
+                System.out.printf("%-15s ---> %-15s%n", shortestPath.get(i+1),shortestPath.get(i+1));
+                System.out.printf("%-20s %-15.2f miles%n", "Distance", dist);
+                System.out.printf("%-20s %-15.2f hrs%n", "Time", ((dist / speed)));
+                System.out.printf("%-20s %-20s%n","Destination Time" , tempTime.date);
+                System.out.printf("%-20s %-20s%n","Climate Condition" , tempTime.condition);
+                System.out.printf("%-20s %-15.2f F%n","Temperature" , tempTime.temperature);
+                System.out.printf("%-20s %-15.2f%n","SafetyScore" ,s);
+            }
         }
+        System.out.println("----------------------------------------------------------");
+        System.out.println("The Path Distance  = "+ distanceTraveled);
+        System.out.println(Path);
         System.out.printf("%-25s %-15.2f%n","Final Safety Index :" ,Score/pathLength);
+        System.out.println("----------------------------------------------------------");
         return  Score/pathLength;
+    }
+    public static void main(String args[]) throws Exception {
+        String shortestPath = "millcity-nv,westwendover-nv,orem-ut,provo-ut,grandjunction-co,aspen-co";
+        LocalDateTime date = LocalDateTime.of(2023,11,11,15,00);
+        String Dataset = "./Datasets/";
+//        System.out.println( "The Safety Index for the given path is :"+getScoreForPath(shortestPath,date,55 ,Dataset, true));
     }
 }

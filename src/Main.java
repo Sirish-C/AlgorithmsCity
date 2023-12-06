@@ -1,10 +1,7 @@
 import java.util.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.io.BufferedWriter;
-import java.util.List;
 import java.io.FileWriter;
-import java.util.Map;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -44,7 +41,7 @@ public class Main {
         }
         return adjMAat;
     }
-    public static void main(String[] args) {
+    public static void main(String[] args)throws Exception {
     	
     	String formattedDateTime;
         formattedDateTime = null;
@@ -55,6 +52,7 @@ public class Main {
         String seaLevelCsvFilePath = datasetPath+"seaLevel.csv";
         String distanceWithoutHeaders = datasetPath+"distance_matrix_without_citynames.csv";
         String possiblePathCode = datasetPath+ "new_distance_matrics.csv";
+        LocalDateTime localDateTime;        
 
         String outputGraphical = resultsPath+"output_graphical.txt";
         
@@ -85,7 +83,7 @@ public class Main {
         try {
             // Parse user input into LocalDateTime
             DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime localDateTime = LocalDateTime.parse(userInput, inputFormatter);
+            localDateTime = LocalDateTime.parse(userInput, inputFormatter);
 
             // Format the LocalDateTime into the desired output format
             DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -189,21 +187,19 @@ public class Main {
 
         	
         	
-        } else if (user_selection ==4) {
-            int iCity = distanceDataManager.getIndex(startcity);
-            int jCity = distanceDataManager.getIndex(endcity);
-
-            System.out.println("Distance between " + startcity + " and " + endcity + " is " + adjacencymatrix[iCity][jCity]);
-            System.out.print("Please specify how many miles additionally you would like to travel : " );
-            int range = 30;
-            System.out.println();
-            System.out.print("Displaying all available paths in the within  " + ( adjacencymatrix[iCity][jCity] + range ) + " mi");
-
-
-            paths = new possible_paths_1(startcity, endcity, range, cityWeatherMap, temperature, mileage, possiblePathCode);
+        } else if(user_selection == 4) {
+            paths = new possible_paths_1(startcity, endcity, 30, cityWeatherMap, temperature, mileage, possiblePathCode);
             List<List<String>> allpaths = paths.findAllPaths();
-            System.out.println(allpaths);
-        } else {
+            SafetyIndex safetyIndex = new SafetyIndex(datasetPath);
+            int maxPoints = 0;
+            float path1_points = SafetyIndex.getScoreForPath(allpaths.get(0),localDateTime,55 ,datasetPath, false);
+            float path2_points = SafetyIndex.getScoreForPath(allpaths.get(7),localDateTime,55 ,datasetPath, false);
+            float path3_points = SafetyIndex.getScoreForPath(allpaths.get(9),localDateTime,55 ,datasetPath, false);
+            System.out.println();
+            if(path1_points>path2_points && path1_points>path2_points) System.out.println("Suggested Best Path ="+allpaths.get(0));
+            else if(path2_points>path3_points && path2_points>path1_points) System.out.println("Suggested Best Path ="+allpaths.get(7));
+            else if (path3_points>path1_points && path3_points>path2_points) System.out.println("Suggested Best Path ="+allpaths.get(9));
+        }else{
         	System.out.println("Error selection. Please try again !");
         	return;
         }
